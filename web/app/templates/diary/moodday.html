@@ -1,0 +1,169 @@
+{% extends "diary/base.html" %}
+{% block content %}
+
+<div class="container pb-5 h-100">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-6">
+      <div class="card text-dark" style="border-radius: 1rem;">
+        <div class="card-body p-5 text-center">
+
+          <p id="curr_id" hidden="hidden">{{current_user.id}}</p>
+          <div class="box"></div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM="
+  crossorigin="anonymous">
+  </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+  /*============================================== Prepare Data ==============================================*/
+  var curr_id = document.getElementById("curr_id");
+  var curr_id = curr_id.innerText;
+  let data_mood = [];
+  let data_time1 = [];
+  let data_time2 = [];
+  let data_sleep1 = [];
+  let data_sleep2 = [];
+  let data_boring1 = [];
+  let data_boring2 = [];
+  let data_meditation1 = [];
+  let data_meditation2 = [];
+  let data_mind1 = [];
+  let data_mind2 = [];
+  let data_social1 = [];
+  let data_social2 = [];
+  let data_sum1 = [];
+  let data_sum2 = [];
+  var stress = '';
+
+  /*============================================== Get Data ==============================================*/
+  $.getJSON("/diary/data-mood", function (Array_data_mood) {
+    Array_data_mood.forEach(element => {
+      let dict = {};
+      if (element.owner_id == curr_id) {
+
+        dict['boring'] = element.boring;
+        dict['date_created'] = element.date_created;
+        dict['date_update'] = element.date_update;
+        dict['id'] = element.id;
+        dict['meditation'] = element.meditation;
+        dict['mind'] = element.mind;
+        dict['owner_id'] = element.owner_id;
+        dict['sleep'] = element.sleep;
+        dict['social'] = element.social;
+        dict['sum_mood'] = element.sum_mood;
+        data_time1.push(element.date_created);
+        data_sleep1.push(element.sleep);
+        data_boring1.push(element.boring);
+        data_mind1.push(element.mind);
+        data_social1.push(element.social);
+        data_meditation1.push(element.meditation);
+        data_sum1.push(element.sum_mood);
+        data_mood.push(dict);
+      }
+    });
+    populate_sum();
+    manage_Time();
+    showchart();
+  });
+
+  /*============================================== Manage Time ==============================================*/
+  function manage_Time() {
+    console.log(data_mood);
+    console.log(data_time1);
+
+    for (let index = data_time1.length - 1; index >= 0; index--) {
+      console.log(data_time1[index]);
+      var date = new Date();
+      var offset = date.getTimezoneOffset()
+      db_date = new Date((Date.parse(data_time1[index]) - (offset * 60 * 1000))).toLocaleString("th-TH");
+      data_time2.push(db_date.slice(0, 10));
+      data_social2.push(data_social1[index])
+      data_mind2.push(data_mind1[index])
+      data_meditation2.push(data_meditation1[index])
+      data_boring2.push(data_boring1[index])
+      data_sleep2.push(data_sleep1[index])
+      data_sum2.push(data_sum1[index])
+    }
+    console.log(data_time2);
+  }
+
+  /*============================================== Populate ==============================================*/
+  function populate_sum() {
+    const content = document.querySelector('.box');
+    let output = '';
+    let cal_stress = '';
+    if (data_mood.length != 0) {
+      var date = new Date();
+      var offset = date.getTimezoneOffset()
+      db_date = new Date((Date.parse(data_mood[0].date_created) - (offset * 60 * 1000))).toLocaleString("th-TH");
+      cal_stress = data_mood[0].sum_mood;
+      output += `     
+            <div class="mood">
+              <p>${db_date}<p>
+              <p>ระดับความเครียดของคุณในวันนี้ : ${cal_stress}</p>
+              ${cal_stress >= 10 ?
+          `<p>เครียดมากที่สุด</p>
+                `: cal_stress >= 8 ?
+            `<p>เครียดมาก</p>
+                `: cal_stress >= 5 ?
+              `<p>เครียดปานกลาง</p>`
+              : `<p>เครียดน้อย</p>`}
+                </div>
+                <div class="chart" style="width: 100%;height: 40vh" >
+                  <canvas id="myChart" ></canvas>
+                </div>
+              ${cal_stress < 5 ? `<div ><img src="/static/img/s.gif"></div> `
+          : cal_stress < 8 ? `<div ><img src="/static/img/s2.gif"></div> `
+            : cal_stress < 10 ? `<div ><img src="/static/img/sad.gif"></div> ` : `<div ><img src="/static/img/a.gif"></div>`}
+              <a class="btn btn-primary btn-block mb-4" href="{{ url_for('diary_index') }}">Continue</a>
+            `
+
+      content.innerHTML = output;
+      output = '';
+    } else {
+      output +=
+        `<div class="mood"><p>ผู้ใช้ยังไม่ได้ทำการกรอกข้อมูล</p></div>
+      <a class="btn btn-primary btn-block mb-4" href="{{ url_for('diary_mood') }}">Continue</a>
+        `
+
+      content.innerHTML = output;
+      output = '';
+    }
+  }
+
+  /*============================================== Chart ==============================================*/
+  function showchart() {
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: data_time2,
+        datasets: [{
+          label: 'Stress',
+          data: data_sum2,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+          fill: true,
+          backgroundColor: 'rgba(75, 192, 192, 0.2)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 16
+          }
+        }
+      }
+    });
+  }
+
+</script>
+{% endblock %}

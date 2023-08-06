@@ -1,0 +1,483 @@
+{% extends "diary/base.html" %}
+{% block content %}
+
+<div class="container" id="messages-container">
+  <div class="row d-flex justify-content-center align-items-start h-100">
+
+    <div class="col-3"></div>
+
+    <div class="col-6 vstack gap-3" id="container"></div>
+
+
+    <div class="col-3">
+      <div class="card text-dark mb-3">
+        <img class="card-img-top" src="{{ current_user.avatar_url }}" alt="Card image cap">
+        <div id="first-card" class="card-body">
+          <h4 class="card-title">{{ current_user.name }}</h4>
+          <div>@{{ current_user.username }}</div>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item"><i class="bi bi-envelope fa-fw pe-2"></i>Email: {{ current_user.email }}</li>
+          {% if current_user.tel %}
+          <li class="list-group-item"><i class="bi bi-telephone fa-fw pe-2"></i>Telephone: {{ current_user.tel }}</li>
+          {% endif %}
+
+          {% if current_user.birthday %}
+          <li class="list-group-item"><i class="fi fi-sr-cake-birthday fa-fw pe-2"></i>Birthday: {{
+            current_user.birthday.strftime('%d/%m/%Y') }}</li>
+          {% endif %}
+
+          {% if current_user.gender %}
+          <li class="list-group-item">
+            {% if current_user.gender == 'male' %}
+            <i class="bi bi-gender-male fa-fw pe-2"></i>
+            {% elif current_user.gender == 'female' %}
+            <i class="bi bi-gender-female fa-fw pe-2"></i>
+            {% else %}
+            <i class="bi bi-gender-trans fa-fw pe-2"></i>
+            {% endif %}
+            Gender: {{ current_user.gender }}</li>
+          {% endif %}
+
+          {% if current_user.age or current_user.age == 0 %}
+          <li class="list-group-item">
+            {% if current_user.age < 41 %}
+            <i class="fi fi-sr-running fa-fw pe-2"></i>
+            {% else %}
+            <i class="fi fi-br-hiking fa-fw pe-2"></i>
+            {% endif %}
+            Age: {{ current_user.age }}</li>
+          {% endif %}
+        </ul>
+
+        <div id="last-card" class="card-body">
+          <a type="button" class="btn btn-primary" href="{{ url_for('diary_edit_profile') }}"><i
+              class="bi bi-pen fa-fw pe-2"></i>Edit Profile</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div class="modal fade" id="addMessagesModal" tabindex="-1" aria-labelledby="addMessagesModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="addMessagesForm">
+        <div class="modal-header text-center">
+          <h5 class="modal-title" id="addMessagesModalLabel">Create post</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div>วันที่ปัจจุบันคือ</div>
+          <div class=" d-flex justify-content-center align-items-center w-100">
+            <div id="clock" class="light m-2">
+              <div class="display">
+                <div class="weekdays"></div>
+                <div class="ampm"></div>
+                <div class="digits"></div>
+              </div>
+            </div>
+          </div>
+          <div> คุณต้องการให้เป็นแบบสาธารณะหรือส่วนตัวดีละ? </div>
+          <input type="radio" class="form-check-input" id="public" name="privacy" value="Public" required><label
+            for="public">:Public </label>
+          <input type="radio" class="form-check-input" id="private" name="privacy" value="Private" required><label
+            for="private">:Private </label>
+          <br>
+          <!--Messages input-->
+          <div class="form-outline mb-4">
+            <textarea name="messages" id="messages-input" class="form-control" rows="4" style="width:100%;"
+              required></textarea>
+            <label class="form-label" for="messages-input">Your mood...</label>
+          </div>
+          <input type="hidden" id="entryid" name="id" value="">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Post</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModalLabel">Confirm Remove</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+
+  $(document).ready(function () {
+    refresh_page();
+  });
+
+  /*============================================== Refresh Page ==============================================*/
+  function refresh_page() {
+    if (!isSearching) {
+      $.getJSON("/diary/data-mess-profile", function (messages_data) {
+        $("#container").empty();
+        populate_mess(messages_data);
+        setTimeout(refresh_page, 5000);
+      });
+    } else {
+      // If user is searching, wait for another 5 seconds before refreshing
+      setTimeout(refresh_page, 5000);
+    }
+  }
+
+  /*============================================== Populate ==============================================*/
+  function populate_mess(messages_data) {
+
+    // Check if messages_data is empty
+    if (messages_data === undefined || messages_data.length == 0) {
+      var container = $("#container");
+      var newMessages = `
+      {% if current_user.is_authenticated %}
+      <div class="card text-dark">
+        <div class="card-body d-flex">
+          <!-- Avatar -->
+          <div class="avatar avatar-story me-2">
+            <img class="avatar-img rounded-circle" src="{{ current_user.avatar_url }}" alt="Portrait of a User">
+          </div>
+          <!-- Button -->
+          <div class="add-messages-btn" role="button" data-bs-toggle="modal" data-bs-target="#addMessagesModal" onclick="clearForm()">
+            <div style="flex: 1;"></div>
+            <div><span style="text-align: center;"> วันนี้คุณรู้สึกอย่างไร {{current_user.name}}</span></div>
+            <div style="flex: 1;"></div>
+          </div>          
+        </div>
+      </div>
+      {% endif %}
+      <div class="card text-dark">
+        <div class="card-body d-flex align-items-center justify-content-center">
+          Don't have posts yet
+        </div>
+      </div>
+    `;
+      container.append(newMessages);
+      return;
+    } else {
+      var container = $("#container");
+      var newMessages = `
+      {% if current_user.is_authenticated %}
+      <div class="card text-dark">
+        <div class="card-body d-flex">
+          <!-- Avatar -->
+          <div class="avatar avatar-story me-2">
+            <img class="avatar-img rounded-circle" src="{{ current_user.avatar_url }}" alt="Portrait of a User">
+          </div>
+          <!-- Button -->
+          <div class="add-messages-btn" role="button" data-bs-toggle="modal" data-bs-target="#addMessagesModal" onclick="clearForm()">
+            <div style="flex: 1;"></div>
+            <div><span style="text-align: center;"> วันนี้คุณรู้สึกอย่างไร {{current_user.name}}</span></div>
+            <div style="flex: 1;"></div>
+          </div>          
+        </div>
+      </div>
+      {% endif %}
+    `;
+      container.append(newMessages);
+    }
+
+    var container = $("#container");
+
+    $.each(messages_data, function (index, data) {
+      var newMessages = '';
+
+      created_date = set_time(data.date_created);
+      update_date = set_time(data.date_update);
+      created_date_rep = getTimeDifference(created_date);
+      update_date_rep = getTimeDifference(update_date);
+
+      newMessages = `
+      <div class="card text-dark searchable">
+        <div class="card-header border-0 pb-0">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <!-- Avatar -->
+              <div class="avatar avatar-story me-2">
+                <img class="avatar-img rounded-circle" src="{{current_user.avatar_url}}"
+                    alt="Portrait of a User">
+              </div>
+              <!-- Info -->
+              <div>
+                <div class="nav nav-divider">
+                  <h6 class="nav-item card-title mb-0">{{current_user.name}}</h6>&nbsp;
+                  <span class="mb-0 small text-muted"> @{{current_user.username}}</span>
+                </div>
+                <span class="nav-item small">${created_date_rep}</span> · 
+                ${data.privacy === 'Public' ?
+          `<i class="bi bi-globe-asia-australia fa-fw pe-2"></i>` :
+          `<i class="bi bi-lock fa-fw pe-2"></i>`}
+              </div>
+            </div>
+            ${`{{current_user.id}}` == data.owner_id ?
+          `<!-- Card feed action dropdown START -->
+            <div class="dropdown">
+              <a class="text-secondary py-1 px-2" href="#" id="cardFeedAction" data-mdb-toggle="dropdown"
+                aria-expanded="false">
+                <i class="bi bi-three-dots"></i>
+              </a>
+              <!-- Card feed action dropdown menu -->
+              <ul class="dropdown-menu" aria-labelledby="cardFeedAction">
+                <li><button class="dropdown-item edit" onclick="prePopulateForm({messages: '${data.messages}', id: ${data.id}, privacy: '${data.privacy}'})"> <i class="bi bi-pen fa-fw pe-2"></i>Edit</button></li>
+                <li><button class="dropdown-item remove" onclick="removeItem({messages: '${data.messages}', id: ${data.id}})"> <i class="bi bi-trash fa-fw pe-2"></i>Remove</button></li>
+              </ul>
+            </div>
+            <!-- Card feed action dropdown END -->`: ``}
+          </div>
+        </div>
+        <!-- Card body START -->
+        <div class="card-body">
+          ${data.messages}
+        </div>
+        <!-- Card body END -->
+      </div>
+      `;
+      container.append(newMessages);
+    });
+  }
+
+  /*============================================== Set Time ==============================================*/
+  function set_time(date) {
+    var date_set = new Date();
+    var offset = date_set.getTimezoneOffset();
+    var date = new Date(date);
+    date.setMinutes(date.getMinutes() - offset);
+    return date
+  }
+
+  /*============================================== Set Difference Time ==============================================*/
+  function getTimeDifference(date) {
+    const msPerMinute = 60 * 1000;
+    const msPerHour = msPerMinute * 60;
+    const msPerDay = msPerHour * 24;
+
+    const currentDate = new Date();
+    const difference = currentDate.getTime() - new Date(date).getTime();
+
+    if (difference < msPerMinute) {
+      return 'Just now';
+    } else if (difference < msPerHour) {
+      return Math.round(difference / msPerMinute) + 'm ago';
+    } else if (difference < msPerDay) {
+      return Math.round(difference / msPerHour) + 'hr ago';
+    } else {
+      return Math.round(difference / msPerDay) + 'days ago';
+    }
+  }
+
+  /*============================================== Remove ==============================================*/
+  function removeItem(data) {
+    showConfirmationModal(data).then((confirmed) => {
+      if (confirmed) {
+        var url = "/diary/remove-mess-profile";
+        var formData = { 'id': data.id };
+        $.post(url, formData, function () {
+          refresh_page();
+        });
+      }
+    });
+  }
+
+  /*============================================== Confirm Modal ==============================================*/
+  function showConfirmationModal(data) {
+    return new Promise((resolve, reject) => {
+      const confirmationModal = document.getElementById('confirmationModal');
+      const modal = new bootstrap.Modal(confirmationModal);
+
+      // Set the messages to display in the modal
+      confirmationModal.querySelector('.modal-body').innerHTML = `Are you sure you want to delete "${data.messages}"?`;
+
+      // When the user confirms, resolve the Promise with true
+      const confirmButton = confirmationModal.querySelector('.btn-primary');
+      confirmButton.addEventListener('click', () => {
+        modal.hide();
+        resolve(true);
+      });
+
+      // When the user cancels, resolve the Promise with false
+      const cancelButton = confirmationModal.querySelector('.btn-secondary');
+      cancelButton.addEventListener('click', () => {
+        modal.hide();
+        resolve(false);
+      });
+
+      // Show the modal
+      modal.show();
+    });
+  }
+
+  /*============================================== Submit ==============================================*/
+  $("#addMessagesForm").submit(function (event) {
+    // prevent default html form submission action
+    event.preventDefault();
+
+    // pack the inputs into a dictionary
+    var messages = $('textarea[name="messages"]').val();
+    var privacy = $('input[name="privacy"]:checked').val();
+    var id = $('input[name="id"]').val();
+    var formData = { privacy: privacy, messages: messages, id: id };
+
+    var $form = $(this);
+    var url = $form.attr("action");
+
+    // make a POST call to the back end w/ a callback to refresh the table
+    $.post(url, formData, function () {
+      refresh_page();
+      clearForm();
+      $('#addMessagesModal').modal('hide');
+    });
+  });
+
+  /*============================================== Pre Form ==============================================*/
+  function prePopulateForm(data) {
+    $('#addMessagesForm')[0].reset();
+    if (data.privacy === 'Public') {
+      $('#public').prop('checked', true);
+    } else {
+      $('#private').prop('checked', true);
+    }
+    $('#messages-input').val(data.messages);
+    $('#entryid').val(data.id);
+    $('#addMessagesModal').modal('show');
+  }
+
+  /*============================================== Clear Form ==============================================*/
+  function clearForm() {
+    $('#addMessagesForm')[0].reset();
+    $('#entryid').val('');
+  }
+
+  /*============================================== Digital Clock ==============================================*/
+  $(function () {
+
+    // Cache some selectors
+
+    var clock = $('#clock'),
+      ampm = clock.find('.ampm');
+
+    // Map digits to their names (this will be an array)
+    var digit_to_name = 'zero one two three four five six seven eight nine'.split(' ');
+
+    // This object will hold the digit elements
+    var digits = {};
+
+    // Positions for the hours, minutes, and seconds
+    var positions = [
+      'h1', 'h2', ':', 'm1', 'm2', ':', 's1', 's2'
+    ];
+
+    // Generate the digits with the needed markup,
+    // and add them to the clock
+
+    var digit_holder = clock.find('.digits');
+
+    $.each(positions, function () {
+
+      if (this == ':') {
+        digit_holder.append('<div class="dots">');
+      }
+      else {
+
+        var pos = $('<div>');
+
+        for (var i = 1; i < 8; i++) {
+          pos.append('<span class="d' + i + '">');
+        }
+
+        // Set the digits as key:value pairs in the digits object
+        digits[this] = pos;
+
+        // Add the digit elements to the page
+        digit_holder.append(pos);
+      }
+
+    });
+
+
+    // Add the weekday names
+
+    var weekday_names = 'MON TUE WED THU FRI SAT SUN'.split(' '),
+      weekday_holder = clock.find('.weekdays');
+
+    $.each(weekday_names, function () {
+      weekday_holder.append('<span>' + this + '</span>');
+    });
+
+    var weekdays = clock.find('.weekdays span');
+
+    // Run a timer every second and update the clock
+
+    (function update_time() {
+
+      // Get the current time
+      var now = new Date();
+
+      // Extract hours, minutes, seconds, and day of the week
+      var hours = now.getHours(),
+        minutes = now.getMinutes(),
+        seconds = now.getSeconds(),
+        dow = now.getDay();
+
+      // Convert hours to 12-hour format and determine AM/PM
+      var am_pm = hours < 12 ? 'AM' : 'PM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // if hours is 0, make it 12
+
+      // Set the digit classes for hours, minutes, and seconds
+      digits.h1.attr('class', digit_to_name[Math.floor(hours / 10)]);
+      digits.h2.attr('class', digit_to_name[hours % 10]);
+      digits.m1.attr('class', digit_to_name[Math.floor(minutes / 10)]);
+      digits.m2.attr('class', digit_to_name[minutes % 10]);
+      digits.s1.attr('class', digit_to_name[Math.floor(seconds / 10)]);
+      digits.s2.attr('class', digit_to_name[seconds % 10]);
+
+      // The library returns Sunday as the first day of the week.
+      // Stupid, I know. Lets shift all the days one position down, 
+      // and make Sunday last
+
+      dow--;
+
+      // Sunday!
+      if (dow < 0) {
+        // Make it last
+        dow = 6;
+      }
+
+      // Mark the active day of the week
+      weekdays.removeClass('active').eq(dow).addClass('active');
+
+      // Set the am/pm text:
+      ampm.text(am_pm);
+
+      // Schedule this function to be run again in 1 sec
+      setTimeout(update_time, 1000);
+
+    })();
+
+  });
+
+</script>
+{% endblock %}
+
+<!-- https://social.webestica.com/index.html -->

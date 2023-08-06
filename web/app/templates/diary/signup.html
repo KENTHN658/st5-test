@@ -1,0 +1,127 @@
+{% extends "diary/base.html" %}
+{% block content %}
+<div class="container pb-5 h-100">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+      <div class="card text-dark" style="border-radius: 1rem;">
+        <div class="card-body p-5 text-center">
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <div class="alert alert-danger" role="alert">
+            {{ messages[0] }}. Go to <a href="{{ url_for('diary_login') }}">login page</a>.
+          </div>
+          {% endif %}
+          {% endwith %}
+
+          <form method="POST">
+            <!-- Username input -->
+            <div class="form-outline mb-4">
+              <input type="text" name="username" id="username-input" class="form-control" autofocus="" maxlength="100"
+                pattern="[A-Za-z0-9_]+" required />
+              <label class="form-label" for="username-input">Username</label>
+            </div>
+            <div id="username-error" class="form-text text-danger mb-2" style="text-align: left; display: none;">
+              Username can only contain letters, numbers, and underscores (_).
+            </div>
+
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+              <input type="email" name="email" id="email-input" class="form-control" autofocus="" maxlength="100"
+                required />
+              <label class="form-label" for="email-input">Email address</label>
+            </div>
+
+            <!-- Name input -->
+            <div class="form-outline mb-4">
+              <input type="text" name="name" id="name-input" class="form-control" autofocus="" maxlength="1000"
+                pattern="^[a-zA-Zก-๙เ0-9\s]+$" required />
+              <label class="form-label" for="name-input">Name</label>
+            </div>
+            <div id="name-error" class="form-text text-danger mb-4" style="text-align: left; display: none;">Name can
+              only contain Thai and English characters, numbers and spaces.</div>
+
+            <!-- Password input -->
+            <div class="form-outline mb-4">
+              <input type="password" name="password" id="password-input" class="form-control" maxlength="100"
+                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$" required />
+              <label class="form-label" for="password-input">Password</label>
+            </div>
+            <div id="password-error" class="form-text text-danger mb-4" style="text-align: left; display: none;">
+              Password must contain at least 8 characters, including 1 uppercase letter, 1 lowercase letter, and 1
+              number.</div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-block mb-4">Sign up</button>
+
+            <!-- Register buttons -->
+            <div class="text-center">
+              <p>Have an account already? <a href="{{ url_for('diary_login') }}">Log in</a></p>
+              <p>or sign up with:</p>
+              <a href="/facebook/" class="btn btn-secondary btn-floating mx-1">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+
+              <a href="/google/" class="btn btn-secondary btn-floating mx-1">
+                <i class="fab fa-google"></i>
+              </a>
+
+              <a href="/github/" class="btn btn-secondary btn-floating mx-1">
+                <i class="fab fa-github"></i>
+              </a>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*============================================== Username Error ==============================================*/
+  const usernameInput = document.querySelector('#username-input');
+  const usernameError = document.querySelector('#username-error');
+  const usernameFormOutline = document.querySelector('#username-input').closest('.form-outline');
+
+  usernameInput.addEventListener('input', (event) => {
+    if (!event.target.validity.valid) {
+      usernameError.style.display = 'block';
+      usernameFormOutline.classList.add('mb-2');
+    } else {
+      usernameError.style.display = 'none';
+      usernameFormOutline.classList.remove('mb-2');
+    }
+  });
+
+  /*============================================== Name Error ==============================================*/
+  const nameInput = document.querySelector('#name-input');
+  const nameError = document.querySelector('#name-error');
+  const nameFormOutline = document.querySelector('#name-input').closest('.form-outline');
+
+  nameInput.addEventListener('input', (event) => {
+    if (!event.target.validity.valid) {
+      nameError.style.display = 'block';
+      nameFormOutline.classList.add('mb-2');
+    } else {
+      nameError.style.display = 'none';
+      nameFormOutline.classList.remove('mb-2');
+    }
+  });
+
+  /*============================================== Password Error ==============================================*/
+  const passwordInput = document.querySelector('#password-input');
+  const passwordError = document.querySelector('#password-error');
+  const passwordFormOutline = document.querySelector('#password-input').closest('.form-outline');
+
+  passwordInput.addEventListener('input', (event) => {
+    if (!event.target.validity.valid) {
+      passwordError.style.display = 'block';
+      passwordFormOutline.classList.add('mb-2');
+    } else {
+      passwordError.style.display = 'none';
+      passwordFormOutline.classList.remove('mb-2');
+    }
+  });
+</script>
+{% endblock %}

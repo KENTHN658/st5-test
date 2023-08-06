@@ -1,0 +1,110 @@
+{% extends "diary/base.html" %}
+{% block content %}
+<div class="container pb-5 h-100">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+      <div class="card text-dark" style="border-radius: 1rem;">
+        <div class="card-body p-5 text-center">
+
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+
+          {% if messages[0] == 'Account updated.' %}
+          <div class="alert alert-success text-center" role="alert">
+            {{ messages[0] }} Go to <a href="{{ url_for('diary_profile') }}">Profile</a>.
+          </div>
+          {% else %}
+          <div class="alert alert-danger text-center" role="alert">
+            {{ messages[0] }}
+          </div>
+          {% endif %}
+
+          {% endif %}
+          {% endwith %}
+
+          <form method="POST" onsubmit="return showConfirmationModal(event)">
+            <!-- Username input -->
+            <div class="form-outline mb-4">
+              <input type="text" name="username" id="username-input" class="form-control"
+                placeholder="{{ current_user.username }}" autofocus="" value="{{ current_user.username }}"
+                maxlength="100" required pattern="[A-Za-z0-9_]+" />
+              <label class="form-label" for="username-input">Username</label>
+            </div>
+            <div id="username-error" class="form-text text-danger mb-2" style="text-align: left; display: none;">
+              Username can only contain letters, numbers, and underscores (_).
+            </div>
+
+            <!-- Email input -->
+            <div class="form-outline mb-4">
+              <input type="email" name="email" id="email-input" class="form-control"
+                placeholder="{{ current_user.email }}" autofocus="" value="{{ current_user.email }}" maxlength="100"
+                required />
+              <label class="form-label" for="email-input">Email address</label>
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+          </form>
+          
+          <!-- Confirm Modal -->
+          <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="confirmationModalLabel">Confirm submission</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Are you sure you want to save changes?
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /*============================================== Username Error ==============================================*/
+  const usernameInput = document.querySelector('#username-input');
+  const usernameError = document.querySelector('#username-error');
+  const usernameFormOutline = document.querySelector('#username-input').closest('.form-outline');
+
+  usernameInput.addEventListener('input', (event) => {
+    if (!event.target.validity.valid) {
+      usernameError.style.display = 'block';
+      usernameFormOutline.classList.add('mb-2');
+    } else {
+      usernameError.style.display = 'none';
+      usernameFormOutline.classList.remove('mb-2');
+    }
+  });
+
+  /*============================================== Confirm Modal ==============================================*/
+  function showConfirmationModal(event) {
+    event.preventDefault(); // prevent form submission
+
+    // Show the confirmation modal
+    const confirmationModal = document.getElementById('confirmationModal');
+    const modal = new bootstrap.Modal(confirmationModal);
+    modal.show();
+
+    // When the user confirms, submit the form
+    const submitButton = confirmationModal.querySelector('button[type="submit"]');
+    submitButton.addEventListener('click', () => {
+      event.target.submit(); // submit the form
+    });
+
+    return false; // don't submit the form yet
+  }
+
+</script>
+{% endblock %}

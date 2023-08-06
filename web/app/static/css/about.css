@@ -1,0 +1,20 @@
+.point:hover {
+    cursor: pointer;
+}
+
+header.fixed-top+main {
+    padding-top: calc(1.5rem + 56px);
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    background-color: #FFE1A0;
+}
+
+.nav-link{
+    color: whitesmoke;
+}
+
+body {
+    font-family: 'Noto Sans Thai', sans-serif;
+}

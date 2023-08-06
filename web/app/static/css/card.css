@@ -1,0 +1,249 @@
+:root {
+    --mdb-link-color: #F9476C;
+    --mdb-link-hover-color: #F9476C;
+}
+
+ิ html,
+body {
+    font-family: 'Noto Sans Thai', sans-serif;
+}
+
+/*============================================== Color ==============================================*/
+.card {
+    background-color: #FDD9E5;
+}
+
+.list-group-item {
+    background-color: #FDD9E5;
+}
+
+/*============================================== Border Color ==============================================*/
+#first-card {
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-top-width: 0;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 1px;
+}
+
+#last-card{
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    border-top-width: 1px;
+    border-left-width: 0;
+    border-right-width: 0;
+    border-bottom-width: 0;
+}
+
+/*============================================== btn primary ==============================================*/
+.btn-check:active+.btn-primary:hover,
+.btn-check:checked+.btn-primary:hover,
+.btn-primary.active:hover,
+.btn-primary.show:hover,
+.btn-primary:active:hover {
+    background-color: #F9476C;
+}
+
+.btn-check:active+.btn-primary,
+.btn-check:active+.btn-primary:focus,
+.btn-check:checked+.btn-primary,
+.btn-check:checked+.btn-primary:focus,
+.btn-primary.active,
+.btn-primary.active:focus,
+.btn-primary.show,
+.btn-primary.show:focus,
+.btn-primary:active,
+.btn-primary:active:focus {
+    box-shadow: 0 8px 9px -4px rgba(249, 71, 108, 0.3), 0 4px 18px 0 rgba(249, 71, 108, 0.2);
+}
+
+.btn-primary:first-child:hover,
+.btn-primary:focus-visible,
+.btn-primary:hover,
+:not(.btn-check)+.btn-primary:hover {
+    box-shadow: 0 8px 9px -4px rgba(249, 71, 108, 0.3), 0 4px 18px 0 rgba(249, 71, 108, 0.2);
+}
+
+.btn-check:focus+.btn-primary,
+.btn-check:focus-visible+.btn-primary,
+.btn-primary:focus {
+    box-shadow: 0 8px 9px -4px rgba(249, 71, 108, 0.3), 0 4px 18px 0 rgba(249, 71, 108, 0.2);
+    background-color: #F9476C;
+}
+
+.btn-primary {
+    --mdb-btn-bg: #F9476C;
+    --mdb-btn-box-shadow: 0 4px 9px -4px #F9476C;
+    --mdb-btn-hover-bg: #F9476C;
+    --mdb-btn-focus-bg: #F9476C;
+    --mdb-btn-active-bg: #F9476C;
+}
+
+.btn-primary {
+    --mdb-btn-border-color: #F9476C;
+    --mdb-btn-hover-border-color: #F9476C;
+    --mdb-btn-focus-shadow-rgb: 88, 134, 210;
+    --mdb-btn-active-border-color: #F9476C;
+    --mdb-btn-active-shadow: 0 8px 9px -4px rgba(0, 0, 0, 0.15), 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+    --mdb-btn-disabled-bg: #F9476C;
+    --mdb-btn-disabled-border-color: #F9476C;
+}
+
+/*============================================== modal ==============================================*/
+.modal-content {
+    background-color: #FDD9E5;
+}
+
+.modal-header,
+.modal-footer {
+    border-color: #f1ece8;
+}
+
+/*============================================== form check ==============================================*/
+.form-check-input:checked {
+    border-color: #F9476C;
+}
+
+.form-check-input:focus {
+    border-color: #F9476C;
+    outline: 0;
+    box-shadow: 0 0 0 0.25rem rgba(249, 71, 108, 0.25);
+}
+
+.form-check-input:checked:focus {
+    border-color: #F9476C;
+}
+
+.form-check-input:checked:focus:before {
+    box-shadow: 0 0 0 13px #F9476C;
+}
+
+.form-check-input:indeterminate:focus:before {
+    box-shadow: 0 0 0 13px #F9476C;
+}
+
+.form-check-input[type=radio]:checked:after {
+    border-color: #F9476C;
+    background-color: #F9476C;
+}
+
+/*============================================== form control ==============================================*/
+.form-control:focus {
+    border-color: #F9476C;
+    box-shadow: inset 0 0 0 1px #F9476C;
+}
+
+.form-control:focus {
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 8%), 0 0 0 0.25rem rgba(249, 71, 108, 0.25);
+}
+
+/*============================================== form outline ==============================================*/
+.form-outline .form-control:focus~.form-label {
+    color: #F9476C;
+}
+
+.form-outline .form-control:focus~.form-notch .form-notch-leading {
+    border-color: #F9476C;
+    box-shadow: -1px 0 0 0 #F9476C, 0 1px 0 0 #F9476C, 0 -1px 0 0 #F9476C;
+}
+
+.form-outline .form-control:focus~.form-notch .form-notch-middle {
+    border-color: #F9476C;
+    box-shadow: 0 1px 0 0 #F9476C;
+    border-top: 1px solid transparent;
+}
+
+.form-outline .form-control:focus~.form-notch .form-notch-trailing {
+    border-color: #F9476C;
+    box-shadow: 1px 0 0 0 #F9476C, 0 -1px 0 0 #F9476C, 0 1px 0 0 #F9476C;
+}
+
+/*============================================== form check ==============================================*/
+.form-check-input[type=checkbox]:checked {
+    background-image: none;
+    background-color: #F9476C;
+}
+
+.form-check-input[type=checkbox]:checked:focus {
+    background-color: #F9476C;
+}
+
+/*============================================== btn secondary ==============================================*/
+.btn-check:active+.btn-secondary:hover,
+.btn-check:checked+.btn-secondary:hover,
+.btn-secondary.active:hover,
+.btn-secondary.show:hover,
+.btn-secondary:active:hover {
+    background-color: #fff8f0;
+}
+
+.btn-check:focus+.btn-secondary,
+.btn-check:focus-visible+.btn-secondary,
+.btn-secondary:focus {
+    box-shadow: 0 8px 9px -4px rgba(255, 248, 240, 0.3), 0 4px 18px 0 rgb(255, 248, 240, 0.2);
+    background-color: #fff8f0;
+}
+
+.btn-secondary {
+    --mdb-btn-bg: #e3ebf7;
+    --mdb-btn-color: #2a2d34;
+    --mdb-btn-box-shadow: 0 4px 9px -4px #e3ebf7;
+    --mdb-btn-hover-bg: #fff8f0;
+    --mdb-btn-hover-color: #2a2d34;
+    --mdb-btn-focus-bg: #fff8f0;
+    --mdb-btn-focus-color: #2a2d34;
+    --mdb-btn-active-bg: #fff8f0;
+    --mdb-btn-active-color: #2a2d34;
+}
+
+.btn-secondary {
+    --mdb-btn-color: #000;
+    --mdb-btn-bg: #fff8f0;
+    --mdb-btn-border-color: #fff8f0;
+    --mdb-btn-hover-color: #000;
+    --mdb-btn-hover-bg: #fff8f0;
+    --mdb-btn-hover-border-color: #fff8f0;
+    --mdb-btn-focus-shadow-rgb: 135, 141, 151;
+    --mdb-btn-active-color: #000;
+    --mdb-btn-active-bg: #fff8f0;
+    --mdb-btn-active-border-color: #fff8f0;
+    --mdb-btn-active-shadow: 0 8px 9px -4px rgba(0, 0, 0, 0.15), 0 4px 18px 0 rgba(0, 0, 0, 0.1);
+    --mdb-btn-disabled-color: #000;
+    --mdb-btn-disabled-bg: #fff8f0;
+    --mdb-btn-disabled-border-color: #fff8f0;
+}
+
+/*============================================== nav link ==============================================*/
+.nav-link {
+    color: whitesmoke;
+}
+
+/*============================================== Button Messages ==============================================*/
+.add-messages-btn {
+    border: 1px solid #EBB9D5;
+    border-radius: 1.25rem;
+    padding: .375rem .75rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out;
+}
+
+.add-messages-btn:hover {
+    background-color: rgba(255, 255, 255, 0.45);
+}
+
+/*============================================== Uplode Button ==============================================*/
+input[type="file"]::-webkit-file-upload-button {
+    border: 1px solid #bdbdbd;
+}
+
+/*============================================== Input Group ==============================================*/
+.input-group>input {
+    background-color: transparent;
+}
+
+.input-group>.form-control:focus {
+    border-color: #F9476C;
+    box-shadow: inset 0 0 0 1px #F9476C;
+    background-color: transparent;
+}

@@ -1,0 +1,98 @@
+{% extends "diary/base.html" %}
+{% block content %}
+<div class="container pb-5 h-100">
+  <div class="row d-flex justify-content-center align-items-center h-100">
+    <div class="col-12 col-md-8 col-lg-6 col-xl-5 text-center">
+      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+      <div class="alert alert-danger" id="notification-red" role="alert">
+        {{ messages[0] }}
+      </div>
+      {% endif %}
+      {% endwith %}
+      <div class="alert alert-success" id="notification-green" role="alert" hidden="hidden">
+        New OTP sent to your email.
+      </div>
+      <div class="card text-dark" style="border-radius: 1rem;">
+        <div class="card-body p-5 text-center">
+          <div class="card-title">Enter the OTP sent to your email</div>
+          <form method="POST">
+            <div class="pin-code">
+              <input type="number" name="num1" maxlength="1" pattern="[0-9]" autofocus required>
+              <input type="number" name="num2" maxlength="1" pattern="[0-9]" required>
+              <input type="number" name="num3" maxlength="1" pattern="[0-9]" required>
+              <input type="number" name="num4" maxlength="1" pattern="[0-9]" required>
+              <input type="number" name="num5" maxlength="1" pattern="[0-9]" required>
+              <input type="number" name="num6" maxlength="1" pattern="[0-9]" required>
+            </div>
+            <div class="mt-2">
+              <!-- Submit button -->
+              <button type="submit" class="btn btn-primary">Submit</button>
+
+              <!-- Resend button -->
+              <button id="resend-btn" type="button" class="btn btn-primary">Resend OTP</button>
+        
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script>
+
+  $(document).ready(function () {
+    $('#resend-btn').on('click', function () {
+      if (document.getElementById("notification-red") != null){
+        document.getElementById("notification-red").setAttribute("hidden", true)
+      }
+      document.getElementById("notification-green").removeAttribute("hidden");
+      $.post('/diary/verify', { resend: true }, function (data) {
+        console.log('New OTP sent:', data.otp);
+      });
+    });
+  });
+
+  /*============================================== Pin Code ==============================================*/
+  /* https://codepen.io/danielsintrao/pen/KWozJd */
+  var pinContainer = document.querySelector(".pin-code");
+  console.log('There is ' + pinContainer.length + ' Pin Container on the page.');
+
+  pinContainer.addEventListener('keyup', function (event) {
+    var target = event.srcElement;
+
+    var maxLength = parseInt(target.attributes["maxlength"].value, 10);
+    var myLength = target.value.length;
+
+    if (myLength >= maxLength) {
+      var next = target;
+      while (next = next.nextElementSibling) {
+        if (next == null) break;
+        if (next.tagName.toLowerCase() == "input") {
+          next.focus();
+          break;
+        }
+      }
+    }
+
+    if (myLength === 0) {
+      var next = target;
+      while (next = next.previousElementSibling) {
+        if (next == null) break;
+        if (next.tagName.toLowerCase() == "input") {
+          next.focus();
+          break;
+        }
+      }
+    }
+  }, false);
+
+  pinContainer.addEventListener('keydown', function (event) {
+    var target = event.srcElement;
+    target.value = "";
+  }, false);
+
+</script>
+{% endblock %}

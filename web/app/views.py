@@ -301,7 +301,7 @@ def generate_otp():
 
         # send the OTP to the user's email address
         msg = Messages('Verify your email address',
-                      sender='kritsadi_th@hotmail.com', recipients=[email])
+                      sender='thanaton_b@cmu.ac.th', recipients=[email])
         msg.body = f'OTP request\n\nโปรดนำรหัสยืนยัน (Verification Code) นี้ไประบุในหน้ายืนยันรหัส OTP\n{otp}\n\nรหัสยืนยันนี้จะหมดอายุภายใน 5 นาที\nห้ามนำรหัสยืนยันนี้ให้กับบุคคลอื่นเด็ดขาด'
         mail.send(msg)
         return(otp)
